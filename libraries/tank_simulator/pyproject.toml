@@ -1,0 +1,20 @@
+[project]
+name = "shrimp-simulation"
+version = "0.1.0"
+description = "Simulador ambiental y poblacional para Litopenaeus vannamei (camarón blanco)"
+authors = [
+  { name="Fabian Loaeza Morales", email="fabianloaeza@outlook.com" }
+]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.9"
+keywords = ["aquaculture", "shrimp", "simulation", "environmental", "python"]
+dependencies = [
+  "numpy",
+  "pandas",
+  "pydantic",
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
