@@ -22,4 +22,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install /tmp/tank_simulator
 
 # Comando por defecto al arrancar el contenedor
-CMD ["python", "main_worker.py"]
+CMD ["sleep", "infinity"]

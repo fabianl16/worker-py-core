@@ -4,6 +4,7 @@ import json
 import numpy as np
 import pandas as pd
 import pika
+import time
 
 # ==== Fechas y tiempo ====
 from datetime import datetime, timedelta
@@ -24,7 +25,7 @@ __all__ = [
     "os", "json", "np", "pd",
 
     # Tiempo
-    "datetime", "timedelta",
+    "datetime", "timedelta", "time",
 
     # Tipado
     "List", "Dict", "Any", "Set", "Callable", "Optional", "Tuple",
