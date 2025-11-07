@@ -1,6 +1,7 @@
 # Librerías científicas y de datos
 numpy==1.26.4
 pandas==2.2.3
+pyarrow==17.0.0
 
 # Modelado y validación
 pydantic==2.9.2
