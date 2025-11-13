@@ -86,4 +86,5 @@ class SimulationPayload(BaseModel):
     seed: int
     start_time: datetime
     tank_id: int
+    job_id: str
     preset: Preset
