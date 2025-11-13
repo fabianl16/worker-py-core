@@ -175,7 +175,7 @@ def simulation_step(t: int, env: SimulationEnvironment, prev_state: SimulationSt
     return new_state, final_row
 
 # --- COMPONENTE 5: El Runner del Bucle (SRP) ---
-def run_simulation(env: SimulationEnvironment) -> List[Dict[str, Any]]:
+def run_simulation(env: SimulationEnvironment, progress_callback: Optional[Callable[[float], None]] = None) -> List[Dict[str, Any]]:
     """
     R.U.: Ejecuta el bucle de simulación. MINUTO a MINUTO. 
     """
@@ -194,8 +194,10 @@ def run_simulation(env: SimulationEnvironment) -> List[Dict[str, Any]]:
     for t in range(env.minutes):
         
         # --- Lógica Diaria (se ejecuta al inicio del día, t=0, 1440, etc.) ---
-        if t % MINUTES_PER_DAY == 0:
+        if  progress_callback and t % MINUTES_PER_DAY == 0:
             day_number = t // MINUTES_PER_DAY
+            progress = (t / env.minutes) * 100
+            progress_callback(progress)
             # print(f"  Simulating Day {day_number + 1}...")
             
             # 1. Calcular biomasa actual (inicio del día)

@@ -19,14 +19,20 @@ from functools import partial
 from dataclasses import dataclass
 from pydantic import BaseModel, ValidationError
 
+
+# ==== Rabbit Config ====
 RABBIT_USER = os.environ.get("RABBITMQ_USER", "guest")
 RABBIT_PASS = os.environ.get("RABBITMQ_PASS", "guest")
 RABBIT_HOST = os.environ.get("RABBITMQ_HOST", "localhost")
 RABBIT_PORT = os.environ.get("RABBITMQ_PORT", "5672")
 COLA_NOMBRE = os.environ.get("RABBITMQ_SIMULATIONS_QUEUE", "simulations_queue")
-
 URL_RABBIT = f"amqp://{RABBIT_USER}:{RABBIT_PASS}@{RABBIT_HOST}:{RABBIT_PORT}"
 
+
+# ==== Redis Config ====
+REDIS_HOST  =  os.environ.get("REDIS_HOST", "guest")
+REDIS_PORT  =  os.environ.get("REDIS_PORT", "guest")
+REDIS_URL   =  f"redis://{REDIS_HOST}:{REDIS_PORT}"
 
 __all__ = [
     # Librerías base
@@ -47,6 +53,9 @@ __all__ = [
     #Conexiones
     "pika",
 
-    # Configuración
-    "RABBIT_USER", "RABBIT_PASS", "RABBIT_HOST", "RABBIT_PORT", "COLA_NOMBRE", "URL_RABBIT"
+    # Configuración RABBIT
+    "RABBIT_USER", "RABBIT_PASS", "RABBIT_HOST", "RABBIT_PORT", "COLA_NOMBRE", "URL_RABBIT",
+
+    #Configuracion REDIS
+    "REDIS_HOST", "REDIS_PORT", "REDIS_URL"
 ]
