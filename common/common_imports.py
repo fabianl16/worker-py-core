@@ -33,7 +33,9 @@ URL_RABBIT = f"amqp://{RABBIT_USER}:{RABBIT_PASS}@{RABBIT_HOST}:{RABBIT_PORT}"
 REDIS_HOST  =  os.environ.get("REDIS_HOST", "guest")
 REDIS_PORT  =  os.environ.get("REDIS_PORT", "guest")
 REDIS_URL   =  f"redis://{REDIS_HOST}:{REDIS_PORT}"
-
+REDIS_SIMULATION_CHANNEL = os.environ.get("REDIS_SIMULATION_CHANNEL", "guest")
+REDIS_SIMULATION_NAMESPACE = os.environ.get("REDIS_SIMULATION_NAMESPACE", "guest")
+REDIS_SIMULATION_EVENT = os.environ.get("REDIS_SIMULATION_EVENT", "guest")
 __all__ = [
     # Librerías base
     "os", "json", "np", "pd",
@@ -57,5 +59,5 @@ __all__ = [
     "RABBIT_USER", "RABBIT_PASS", "RABBIT_HOST", "RABBIT_PORT", "COLA_NOMBRE", "URL_RABBIT",
 
     #Configuracion REDIS
-    "REDIS_HOST", "REDIS_PORT", "REDIS_URL"
+    "REDIS_HOST", "REDIS_PORT", "REDIS_URL", "REDIS_SIMULATION_CHANNEL", "REDIS_SIMULATION_NAMESPACE", "REDIS_SIMULATION_EVENT"
 ]

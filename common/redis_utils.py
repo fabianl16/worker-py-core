@@ -1,4 +1,5 @@
 import redis
+import json
 from datetime import datetime
 from typing import Dict, Any
 
@@ -21,3 +22,6 @@ class RedisClient:
 
     def job_exists(self, job_id: str) -> bool:
         return self.client.exists(f"{job_id}") == 1
+    
+    def publish(self, channel, message: dict):
+        self.client.publish(channel, json.dumps(message))
