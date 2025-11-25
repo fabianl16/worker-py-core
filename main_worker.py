@@ -24,10 +24,16 @@ def callback(ch, method, properties, body):
         redis_client.update_job(job_id, {"status": "running", "progress": 0})
 
         def on_progress(percent: float):
-            redis_client.update_job(job_id, {
+            progress_data = {
                 "progress": round(percent, 2),
                 "status": "running",
-        })
+            }
+            redis_client.update_job(job_id, progress_data)
+            redis_client.publish(REDIS_SIMULATION_CHANNEL,         
+            json.dumps({
+                "id": job_id,
+                **progress_data
+            }))
 
         df, paths = simulate_tank_data(
             days=payload.days,
@@ -40,6 +46,11 @@ def callback(ch, method, properties, body):
         )
 
         redis_client.complete_job(job_id)
+        redis_client.publish(REDIS_SIMULATION_CHANNEL, json.dumps({
+            "id": job_id,
+            "status": "completed",
+            "progress": 100
+        }))
         logger.info(f"[✔] Simulación completada para {job_id}. Archivos: {paths}")
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
