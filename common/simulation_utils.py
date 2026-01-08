@@ -3,35 +3,29 @@ from datetime import datetime
 from typing import Dict, Any, List, Tuple
 from tank_simulator.environment import SimulationEnvironment
 from tank_simulator.orchestration import run_simulation
+import requests
 
 def export_results(
     rows: List[Dict[str, Any]], 
     env: SimulationEnvironment, 
-    out_dir: str
+    out_dir: str,
+    job_id: str
 ) -> Dict[str, str]:
     df = pd.DataFrame(rows)
-    os.makedirs(out_dir, exist_ok=True)    
-    base_filename = f"tank_{env.tank_id}_{env.days}d_seed{env.seed}"
-    csv_path = os.path.join(out_dir, f"{base_filename}.csv")
-    pq_path = os.path.join(out_dir, f"{base_filename}.parquet")
-    meta_path = os.path.join(out_dir, f"{base_filename}_meta.json")
+    tank_folder = os.path.join(out_dir, f"tank_{env.tank_id}")
+    os.makedirs(tank_folder, exist_ok=True)
+    base_filename = f"{job_id}_tank_{env.tank_id}_seed{env.seed}"
+    csv_path = os.path.join(tank_folder, f"{base_filename}.csv")
+    pq_path = os.path.join(tank_folder, f"{base_filename}.parquet")
+
     df.to_csv(csv_path, index=False)
     try:
         df.to_parquet(pq_path, index=False)
     except Exception as e:
         print(f"Warning: Could not save parquet file. {e}")
         pq_path = None
-    meta = {
-        "generated_at": datetime.utcnow().isoformat(),
-        "seed": env.seed,
-        "days": env.days,
-        "minutes": env.minutes,
-        "tank_id": env.tank_id,
-        "start_time": env.start_time.isoformat(),
-    }
-    with open(meta_path, "w") as f:
-        json.dump(meta, f, indent=2)    
-    return {"csv": csv_path, "parquet": pq_path, "meta": meta_path}
+
+    return {"csv": csv_path, "parquet": pq_path}
 
 
 def simulate_tank_data(
@@ -41,6 +35,7 @@ def simulate_tank_data(
     start_time: datetime,
     out_dir: str,
     tank_id: int,
+    job_id: str,
     progress_callback=None
 ) -> Tuple[pd.DataFrame, Dict[str, str]]:
     env = SimulationEnvironment(
@@ -52,5 +47,43 @@ def simulate_tank_data(
     )
 
     rows = run_simulation(env, progress_callback=progress_callback)
-    paths = export_results(rows, env, out_dir)
+    paths = export_results(rows, env, out_dir, job_id)
     return pd.DataFrame(rows), paths
+
+
+def generate_chunks(df: pd.DataFrame, job_id: str, tank_id: int, out_dir: str, chunk_size=50000):
+    tank_folder = os.path.join(out_dir, f"tank_{tank_id}")
+    cache_folder = os.path.join(tank_folder, f"{job_id}_cache")
+    os.makedirs(cache_folder, exist_ok=True)
+
+    chunks = []
+    total_rows = len(df)
+
+    for i, start in enumerate(range(0, total_rows, chunk_size)):
+        end = start + chunk_size
+        chunk_df = df.iloc[start:end]
+        chunk_path = os.path.join(cache_folder, f"chunk_{i+1}.json")
+        chunk_df.to_json(chunk_path, orient="records")
+        chunks.append(chunk_path)
+
+    # Metadata
+    metadata = {
+        "job_id": job_id,
+        "rows": total_rows,
+        "chunks": len(chunks),
+        "chunk_size": chunk_size
+    }
+
+    with open(os.path.join(cache_folder, "index.json"), "w") as f:
+        json.dump(metadata, f, indent=2)
+
+    return cache_folder
+
+def check_cache_server_alive(cache_server_url: str) -> bool:
+    print(f"{cache_server_url}/health")
+    try:
+        health_url = f"{cache_server_url}/health"
+        response = requests.get(health_url, timeout=2)
+        return response.status_code == 200
+    except Exception:
+        return False
